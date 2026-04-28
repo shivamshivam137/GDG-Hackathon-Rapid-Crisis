@@ -9,7 +9,7 @@ import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/fir
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Gemini API Configuration (same as gemini.js)
-const GEMINI_API_KEY = "YOUR_API_KEY";
+const GEMINI_API_KEY = "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";
 const GEMINI_API_URL = atob("aHR0cHM6Ly9hcGkuZ3JvcS5jb20vb3BlbmFpL3YxL2NoYXQvY29tcGxldGlvbnM=");
 const GEMINI_MODEL = atob("bGxhbWEtMy4zLTcwYi12ZXJzYXRpbGU=");
 
