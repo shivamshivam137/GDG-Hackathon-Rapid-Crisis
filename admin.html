@@ -9,6 +9,13 @@
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/map.css">
   <link rel="stylesheet" href="css/admin-panels.css">
+  <style>
+    /* DROPDOWN VISIBILITY FIX */
+    #login-admin-select option {
+      background-color: #0f0a14 !important;
+      color: #ffffff !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -22,7 +29,36 @@
   <div class="scanlines"></div>
   <div class="vignette"></div>
 
-  <div class="dashboard-container">
+  <!-- Admin Login Gate -->
+  <div id="admin-login-gate" class="staff-modal-overlay">
+    <div class="staff-modal glass animate-fade-in" style="max-width: 400px; text-align: center;">
+      <div style="margin-bottom: 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
+        <h2 class="font-mono" style="letter-spacing: 4px; font-size: 1rem; color: #fff;">COMMAND AUTHENTICATION</h2>
+        <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Restricted Access • Level 5 Clearance</p>
+      </div>
+      
+      <div style="text-align: left; margin-bottom: 1.5rem;">
+        <label style="display:block; font-size: 0.6rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Admin Personnel</label>
+        <select id="login-admin-select" style="width: 100%; padding: 1rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-family: var(--font-mono); color-scheme: dark;">
+          <option value="">— Select Admin Name —</option>
+        </select>
+      </div>
+
+      <div style="text-align: left; margin-bottom: 2rem;">
+        <label style="display:block; font-size: 0.6rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Command PIN</label>
+        <input type="password" id="login-admin-pin" placeholder="••••" maxlength="4" style="width: 100%; padding: 1rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-family: var(--font-mono); font-size: 1.5rem; text-align: center; letter-spacing: 10px;">
+      </div>
+
+      <button id="admin-login-btn" class="btn-action btn-respond" style="width: 100%; padding: 1.25rem; font-size: 0.8rem; letter-spacing: 2px;">AUTHORIZE ACCESS</button>
+      
+      <div style="margin-top: 1.5rem;">
+        <a href="index.html" style="font-size: 0.6rem; color: var(--text-dim); text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">← Return to Main</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-dashboard" class="dashboard-container" style="display: none;">
     <header class="dashboard-header">
       <div>
         <h1>Admin Command Center</h1>
@@ -30,9 +66,12 @@
           style="font-size: 0.7rem; color: var(--text-dim); margin-top: 0.5rem; letter-spacing: 2px; text-shadow: 0 0 5px rgba(255,255,255,0.2);">
         </div>
       </div>
-      <div class="live-indicator">
-        <span class="live-dot"></span>
-        AI Oversight Active
+      <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div class="live-indicator">
+          <span class="live-dot"></span>
+          AI Oversight Active
+        </div>
+        <button id="btn-admin-logout" class="staff-action-btn" style="padding: 0.5rem 1rem; border-color: rgba(255, 30, 30, 0.3); color: #ff8a8a;">LOGOUT</button>
       </div>
     </header>
 

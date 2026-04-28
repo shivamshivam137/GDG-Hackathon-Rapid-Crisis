@@ -76,49 +76,61 @@
           </svg>
           <span>EMERGENCY CONTACTS</span>
         </div>
-        <div class="contacts-grid">
-          <a href="tel:0" class="contact-card">
-            <div class="contact-icon">🏨</div>
-            <div class="contact-info">
-              <span class="contact-name">Front Desk</span>
-              <span class="contact-number">Ext. 0</span>
+        <div class="contacts-dropdown-container" id="contacts-dropdown">
+          <button class="contacts-dropdown-trigger" id="contacts-dropdown-btn" onclick="document.getElementById('contacts-dropdown').classList.toggle('open')">
+            <div class="trigger-content">
+              <span class="trigger-icon">📞</span>
+              <span class="trigger-text">VIEW EMERGENCY CONTACTS</span>
             </div>
-          </a>
-          <a href="tel:102" class="contact-card">
-            <div class="contact-icon">🚑</div>
-            <div class="contact-info">
-              <span class="contact-name">Ambulance</span>
-              <span class="contact-number">102</span>
-            </div>
-          </a>
-          <a href="tel:101" class="contact-card">
-            <div class="contact-icon">🚒</div>
-            <div class="contact-info">
-              <span class="contact-name">Fire Dept</span>
-              <span class="contact-number">101</span>
-            </div>
-          </a>
-          <a href="tel:100" class="contact-card">
-            <div class="contact-icon">🚔</div>
-            <div class="contact-info">
-              <span class="contact-name">Police</span>
-              <span class="contact-number">100</span>
-            </div>
-          </a>
-          <a href="tel:112" class="contact-card contact-card-highlight">
-            <div class="contact-icon">🆘</div>
-            <div class="contact-info">
-              <span class="contact-name">National Emergency</span>
-              <span class="contact-number">112</span>
-            </div>
-          </a>
-          <a href="tel:9999" class="contact-card">
-            <div class="contact-icon">🛡️</div>
-            <div class="contact-info">
-              <span class="contact-name">Hotel Security</span>
-              <span class="contact-number">Ext. 9999</span>
-            </div>
-          </a>
+            <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </button>
+          
+          <div class="contacts-dropdown-menu" id="contacts-dropdown-menu">
+            <a href="tel:0" class="dropdown-contact-item">
+              <span class="item-icon">🏨</span>
+              <div class="item-details">
+                <span class="item-name">Front Desk</span>
+                <span class="item-number">Ext. 0</span>
+              </div>
+            </a>
+            <a href="tel:102" class="dropdown-contact-item">
+              <span class="item-icon">🚑</span>
+              <div class="item-details">
+                <span class="item-name">Ambulance</span>
+                <span class="item-number">102</span>
+              </div>
+            </a>
+            <a href="tel:101" class="dropdown-contact-item">
+              <span class="item-icon">🚒</span>
+              <div class="item-details">
+                <span class="item-name">Fire Dept</span>
+                <span class="item-number">101</span>
+              </div>
+            </a>
+            <a href="tel:100" class="dropdown-contact-item">
+              <span class="item-icon">🚔</span>
+              <div class="item-details">
+                <span class="item-name">Police</span>
+                <span class="item-number">100</span>
+              </div>
+            </a>
+            <a href="tel:112" class="dropdown-contact-item item-highlight">
+              <span class="item-icon">🆘</span>
+              <div class="item-details">
+                <span class="item-name">National Emergency</span>
+                <span class="item-number">112</span>
+              </div>
+            </a>
+            <a href="tel:9999" class="dropdown-contact-item">
+              <span class="item-icon">🛡️</span>
+              <div class="item-details">
+                <span class="item-name">Hotel Security</span>
+                <span class="item-number">Ext. 9999</span>
+              </div>
+            </a>
+          </div>
         </div>
       </section>
     </main>
@@ -180,13 +192,13 @@
 
   <!-- Staff/Admin Navigation Dropdown -->
   <div id="nav-dropdown" style="position: fixed; top: 0.75rem; right: 0.75rem; z-index: 1000;">
-    <button id="nav-trigger" onclick="document.getElementById('nav-menu').classList.toggle('open')" style="
-      width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.25); font-size: 1rem;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: all 0.3s; backdrop-filter: blur(4px); padding: 0; line-height: 1;
-    " onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'"
-       onmouseout="this.style.background='rgba(255,255,255,0.03)';this.style.color='rgba(255,255,255,0.25)'">⋮</button>
+    <button id="nav-trigger" onclick="document.getElementById('nav-menu').classList.toggle('open')" aria-label="Open Navigation">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="1" fill="currentColor"/>
+        <circle cx="12" cy="5" r="1" fill="currentColor"/>
+        <circle cx="12" cy="19" r="1" fill="currentColor"/>
+      </svg>
+    </button>
 
     <div id="nav-menu" style="
       position: absolute; top: 36px; right: 0; min-width: 160px;
@@ -212,6 +224,38 @@
   </div>
 
   <style>
+    #nav-trigger {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(8px);
+      padding: 0;
+      line-height: 1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      outline: none;
+    }
+
+    #nav-trigger:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+    }
+
+    #nav-trigger:active {
+      transform: scale(0.95);
+    }
+
     #nav-menu.open {
       opacity: 1 !important;
       visibility: visible !important;
@@ -219,10 +263,15 @@
     }
   </style>
   <script>
-    // Close dropdown when clicking outside
+    // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
+      // Nav dropdown
       if (!document.getElementById('nav-dropdown').contains(e.target)) {
         document.getElementById('nav-menu').classList.remove('open');
+      }
+      // Contacts dropdown
+      if (!document.getElementById('contacts-dropdown').contains(e.target)) {
+        document.getElementById('contacts-dropdown').classList.remove('open');
       }
     });
   </script>
@@ -243,6 +292,7 @@
         <div class="ai-chat-header-title">AI Assistant</div>
         <div class="ai-chat-header-status">Online — Emergency Mode</div>
       </div>
+      <button id="ai-chat-close" class="ai-chat-close" title="Close Chat">✕</button>
     </div>
 
     <div id="ai-chat-messages" class="ai-chat-messages">

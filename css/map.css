@@ -7,13 +7,14 @@
 
 .map-section {
   margin-top: 3rem;
+  margin-bottom: 3.5rem; /* Increased spacing to buttons below */
   padding: 2rem;
   background: var(--map-bg);
   border-radius: var(--radius-lg);
   border: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
   overflow: hidden;
-  min-height: 550px;
+  min-height: 580px; /* Slightly taller for better clearance */
   display: flex;
   flex-direction: column;
 }
@@ -93,7 +94,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 4rem 0;
+  padding: 4rem 0 6rem 0; /* Extra bottom padding for 3D tilt clearance */
 }
 
 /* === TACTICAL VIEW TOGGLE === */

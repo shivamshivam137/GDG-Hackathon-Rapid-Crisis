@@ -9,7 +9,7 @@ import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/fir
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Gemini API Configuration (same as gemini.js)
-const GEMINI_API_KEY = "Your_API_Key";
+const GEMINI_API_KEY = "YOUR_API_KEY";
 const GEMINI_API_URL = atob("aHR0cHM6Ly9hcGkuZ3JvcS5jb20vb3BlbmFpL3YxL2NoYXQvY29tcGxldGlvbnM=");
 const GEMINI_MODEL = atob("bGxhbWEtMy4zLTcwYi12ZXJzYXRpbGU=");
 
@@ -109,6 +109,12 @@ class AIChatAssistant {
     // Toggle chat panel
     this.fab.addEventListener('click', () => this.toggle());
 
+    // Close button
+    document.getElementById('ai-chat-close')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggle(false);
+    });
+
     // Send message
     this.sendBtn.addEventListener('click', () => this.handleSend());
 
@@ -148,9 +154,10 @@ class AIChatAssistant {
 
   /**
    * Toggle chat panel open/closed
+   * @param {boolean|null} forceState - Optional force state
    */
-  toggle() {
-    this.isOpen = !this.isOpen;
+  toggle(forceState = null) {
+    this.isOpen = forceState !== null ? forceState : !this.isOpen;
     this.panel.classList.toggle('open', this.isOpen);
     this.fab.classList.toggle('open', this.isOpen);
 

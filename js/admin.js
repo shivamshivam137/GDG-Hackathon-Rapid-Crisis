@@ -1,9 +1,161 @@
 import { subscribeToAlerts, logIncident } from './alerts.js';
-import { db } from './config.js';
-import { doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { db, auth } from './config.js';
+import { doc, updateDoc, addDoc, serverTimestamp, collection, query, where, onSnapshot, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { initUI, makeTiltable, TextScrambler, showNotification } from './ui.js';
 
 initUI();
+
+// =============================================
+// 0. ADMIN AUTHENTICATION GATE
+// =============================================
+let isAdminAuthenticated = localStorage.getItem('isAdminAuthenticated') === 'true';
+const adminLoginGate = document.getElementById('admin-login-gate');
+const adminDashboard = document.getElementById('admin-dashboard');
+const adminLoginBtn = document.getElementById('admin-login-btn');
+const adminSelect = document.getElementById('login-admin-select');
+const adminPinInput = document.getElementById('login-admin-pin');
+const adminLogoutBtn = document.getElementById('btn-admin-logout');
+
+// 0. Ensure base auth for Firestore access
+(async () => {
+  try {
+    if (!auth.currentUser) await signInAnonymously(auth);
+    console.log("Admin session authenticated anonymously.");
+    
+    // Check if session exists
+    if (isAdminAuthenticated) {
+      enterDashboard();
+    }
+  } catch (err) {
+    console.error("Auth initialization failed:", err);
+  }
+})();
+
+// Populate Admin dropdown from staff_directory
+// Note: We sort in memory to avoid requiring a composite index for where + orderBy
+const adminListQ = query(collection(db, 'staff_directory'), where('role', '==', 'ADMIN'), limit(50));
+onSnapshot(adminListQ, (snap) => {
+  if (adminSelect) {
+    if (snap.empty) {
+      adminSelect.innerHTML = '<option value="">— No Admins Found —</option>';
+      showEmergencySetup();
+      return;
+    }
+    
+    hideEmergencySetup();
+    const staff = snap.docs.map(d => d.data());
+    staff.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    
+    const options = staff.map(s => {
+      const name = s.name;
+      return `<option value="${name}">${name}</option>`;
+    });
+    adminSelect.innerHTML = '<option value="">— Select Admin Name —</option>' + options.join('');
+  }
+}, (err) => console.error("Admin List Error:", err));
+
+function showEmergencySetup() {
+  const container = adminLoginGate.querySelector('.staff-modal');
+  let setupBtn = document.getElementById('emergency-admin-setup');
+  if (!setupBtn) {
+    setupBtn = document.createElement('button');
+    setupBtn.id = 'emergency-admin-setup';
+    setupBtn.className = 'btn-action';
+    setupBtn.style.marginTop = '1rem';
+    setupBtn.style.background = 'rgba(0, 255, 136, 0.1)';
+    setupBtn.style.borderColor = 'var(--crisis-green)';
+    setupBtn.style.color = 'var(--crisis-green)';
+    setupBtn.textContent = '⚡ EMERGENCY ADMIN SETUP';
+    setupBtn.onclick = createEmergencyAdmin;
+    container.appendChild(setupBtn);
+  }
+}
+
+function hideEmergencySetup() {
+  document.getElementById('emergency-admin-setup')?.remove();
+}
+
+async function createEmergencyAdmin() {
+  const btn = document.getElementById('emergency-admin-setup');
+  btn.disabled = true;
+  btn.textContent = 'AUTHENTICATING...';
+  
+  try {
+    // Force auth check to satisfy Firestore Rules
+    if (!auth.currentUser) await signInAnonymously(auth);
+    
+    btn.textContent = 'CREATING...';
+    await addDoc(collection(db, 'staff_directory'), {
+      name: "Admin Alpha",
+      role: "ADMIN",
+      password: "1234",
+      floor: 1,
+      dutyStatus: "online",
+      active: true,
+      createdAt: serverTimestamp()
+    });
+    showNotification('Emergency Admin "Admin Alpha" created (PIN: 1234).', 'success');
+    // Reload to refresh the list
+    setTimeout(() => location.reload(), 2000);
+  } catch (err) {
+    console.error("Setup Error:", err);
+    showNotification(`Setup failed: ${err.message}. Please refresh and try once more.`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚡ EMERGENCY ADMIN SETUP';
+  }
+}
+
+function enterDashboard() {
+  isAdminAuthenticated = true;
+  localStorage.setItem('isAdminAuthenticated', 'true');
+  if (adminLoginGate) adminLoginGate.style.display = 'none';
+  if (adminDashboard) adminDashboard.style.display = 'block';
+}
+
+adminLoginBtn?.addEventListener('click', async () => {
+  const selected = adminSelect?.value;
+  const pin = adminPinInput?.value.trim();
+
+  if (!selected || !pin) {
+    showNotification('Admin identification and PIN required.', 'error');
+    return;
+  }
+
+  adminLoginBtn.disabled = true;
+  adminLoginBtn.textContent = 'AUTHORIZING...';
+
+  try {
+    const q = query(collection(db, 'staff_directory'), where('name', '==', selected), where('role', '==', 'ADMIN'));
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      showNotification('Admin record not found.', 'error');
+      return;
+    }
+
+    const adminDoc = snap.docs[0].data();
+    if (adminDoc.password === pin) {
+      enterDashboard();
+      showNotification(`Command access granted. Welcome, ${selected}.`, 'success');
+    } else {
+      showNotification('Authorization failed: Incorrect Command PIN.', 'error');
+      adminPinInput.value = '';
+    }
+  } catch (err) {
+    console.error("Admin Auth Error:", err);
+    showNotification('System error during authorization.', 'error');
+  } finally {
+    adminLoginBtn.disabled = false;
+    adminLoginBtn.textContent = 'AUTHORIZE ACCESS';
+  }
+});
+
+adminLogoutBtn?.addEventListener('click', () => {
+  localStorage.removeItem('isAdminAuthenticated');
+  location.reload();
+});
 
 const adminFeed = document.getElementById('admin-feed');
 const alertSound = document.getElementById('alert-sound');
@@ -26,6 +178,9 @@ subscribeToAlerts((alerts) => {
     playAlertSound();
   }
   prevAlertCount = alerts.length;
+}, (err) => {
+  console.error("Admin Alert Sync Error:", err);
+  showNotification("Permission error: Live alerts inaccessible. Please check Firestore rules.", "error");
 });
 
 // Initialize 3D Walls (Inject 3rd side to all rooms)
@@ -187,7 +342,7 @@ function playAlertSound() {
 function updateStatWithScramble(el, newValue) {
   const valueStr = String(newValue);
   if (el.innerText !== valueStr) {
-    new TextScrambler(el).setText(valueStr);
+    el.innerText = valueStr;
   }
 }
 
@@ -217,7 +372,7 @@ async function renderAdminAlerts(alerts) {
     const protocolHtml = alert.geminiSuggestion ? `
       <div class="gemini-panel monitoring" style="margin-top: 1rem; padding: 0; border-color: rgba(64, 196, 255, 0.2); background: rgba(0, 0, 0, 0.2); overflow: hidden;">
         <div class="gemini-header" style="background: rgba(64, 196, 255, 0.15); color: var(--crisis-blue); padding: 0.6rem 1rem; margin-bottom: 0; border-bottom: 1px solid rgba(64, 196, 255, 0.1);">
-          <span style="font-size: 0.65rem; letter-spacing: 2px; font-weight: bold;">✦ ACTIVE STAFF PROTOCOL</span>
+          <span style="font-size: 0.65rem; letter-spacing: 2px; font-weight: bold;">✦ ACTIVE GEMINI PROTOCOL</span>
         </div>
         <div class="gemini-content" style="font-size: 0.75rem; color: var(--text-dim); opacity: 0.9; padding: 1rem; line-height: 1.6; text-align: left;">
           ${alert.geminiSuggestion.split('\n').map(line => line.trim()).filter(line => line).join('<br>')}

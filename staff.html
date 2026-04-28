@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,142 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/admin-panels.css">
+  <style>
+    /* User Dropdown Styles */
+    .user-dropdown-container {
+      position: relative;
+    }
+
+    .user-profile-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+    }
+
+    .user-profile-btn:hover {
+      background: rgba(0, 255, 136, 0.1);
+      border-color: rgba(0, 255, 136, 0.3);
+      transform: scale(1.05);
+    }
+
+    .user-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      width: 200px;
+      background: rgba(15, 10, 20, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: dropdownFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+    }
+
+    .user-dropdown-menu.active {
+      display: flex;
+    }
+
+    @keyframes dropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .user-dropdown-header {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .user-dropdown-header #dropdown-staff-name {
+      font-size: 0.75rem;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .user-role {
+      font-size: 0.55rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .user-dropdown-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .dropdown-item {
+      padding: 0.85rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .logout-item {
+      color: #ff8a8a;
+    }
+
+    .logout-item:hover {
+      background: rgba(255, 30, 30, 0.1);
+      color: #ff5555;
+    }
+
+    @keyframes pulse-purple {
+      0% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(168, 85, 247, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+      }
+    }
+
+    /* DROPDOWN VISIBILITY FIX */
+    #login-staff-select option {
+      background-color: #0f0a14 !important;
+      color: #ffffff !important;
+    }
+  </style>
 </head>
+
 <body>
   <!-- Ambient Animated Background -->
   <div class="ambient-bg">
@@ -31,51 +167,60 @@
     ">
       <!-- Logo / Branding -->
       <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛡️</div>
-      <h1 style="font-family: var(--font-mono); font-size: 1rem; color: #fff; letter-spacing: 3px; margin-bottom: 0.25rem;">STAFF LOGIN</h1>
-      <p style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 2rem;">Rapid Crisis Response System</p>
+      <h1
+        style="font-family: var(--font-mono); font-size: 1rem; color: #fff; letter-spacing: 3px; margin-bottom: 0.25rem;">
+        STAFF LOGIN</h1>
+      <p
+        style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 2rem;">
+        Rapid Crisis Response System</p>
 
       <!-- Quick Select -->
       <div style="text-align: left; margin-bottom: 0.75rem;">
-        <label style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); letter-spacing: 1px;">SELECT YOUR NAME</label>
+        <label
+          style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); letter-spacing: 1px;">SELECT
+          YOUR NAME</label>
       </div>
       <select id="login-staff-select" style="
         width: 100%; padding: 0.85rem 1rem; background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff;
         font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer;
         appearance: none; -webkit-appearance: none; outline: none;
-        background-image: url('data:image/svg+xml;utf8,<svg fill=\"white\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>');
-        background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1.2rem;
-        transition: border-color 0.3s;
-      ">
+        color-scheme: dark;
+        background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22white%22%3E%3Cpath d=%22M7 10l5 5 5-5z%22/%3E%3C/svg%3E');
+        background-repeat: no-repeat; background-position: right 0.75rem center;
+        background-size: 1.2rem; transition: border-color 0.3s; ">
         <option value="">Loading staff...</option>
       </select>
 
       <!-- PIN Input -->
-      <div style="text-align: left; margin-top: 1.25rem; margin-bottom: 0.5rem;">
-        <label style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); letter-spacing: 1px;">ENTER YOUR PIN</label>
-      </div>
-      <input type="password" id="login-pin-input" placeholder="••••" maxlength="20" style="
+      <div style=" text-align: left; margin-top: 1.25rem; margin-bottom: 0.5rem;">
+        <label
+          style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); letter-spacing: 1px;">ENTER
+          YOUR PIN</label>
+    </div>
+    <input type="password" id="login-pin-input" placeholder="••••" maxlength="20" style="
         width: 100%; padding: 0.85rem 1rem; background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff;
         font-family: var(--font-mono); font-size: 1rem; letter-spacing: 8px;
         text-align: center; outline: none; transition: border-color 0.3s;
       " onfocus="this.style.borderColor='rgba(0,255,136,0.4)'"
-         onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+      onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
 
-      <button id="login-submit-btn" style="
+    <button id="login-submit-btn" style="
         width: 100%; margin-top: 1.25rem; padding: 0.85rem; border-radius: 8px;
         border: 1px solid rgba(0, 255, 136, 0.3); background: rgba(0, 255, 136, 0.1);
         color: var(--crisis-green); font-family: var(--font-mono); font-size: 0.75rem;
         font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: all 0.25s;
       " onmouseover="this.style.background='rgba(0,255,136,0.2)';this.style.boxShadow='0 0 20px rgba(0,255,136,0.15)'"
-         onmouseout="this.style.background='rgba(0,255,136,0.1)';this.style.boxShadow='none'">
-        ENTER DASHBOARD →
-      </button>
+      onmouseout="this.style.background='rgba(0,255,136,0.1)';this.style.boxShadow='none'">
+      ENTER DASHBOARD →
+    </button>
 
-      <p style="font-family: var(--font-mono); font-size: 0.5rem; color: var(--text-muted); margin-top: 1.5rem; letter-spacing: 1px; opacity: 0.5;">
-        Your name will be tagged to all actions
-      </p>
-    </div>
+    <p
+      style="font-family: var(--font-mono); font-size: 0.5rem; color: var(--text-muted); margin-top: 1.5rem; letter-spacing: 1px; opacity: 0.5;">
+      Your name will be tagged to all actions
+    </p>
+  </div>
   </div>
 
   <div class="dashboard-container" style="display: none;" id="staff-dashboard">
@@ -88,57 +233,14 @@
             ACTIVE
           </div>
         </div>
-        <div class="sys-clock font-mono" style="font-size: 0.6rem; color: var(--text-dim); letter-spacing: 2px; text-shadow: 0 0 5px rgba(255,255,255,0.2);"></div>
+        <div class="sys-clock font-mono"
+          style="font-size: 0.6rem; color: var(--text-dim); letter-spacing: 2px; text-shadow: 0 0 5px rgba(255,255,255,0.2);">
+        </div>
       </div>
       <div style="display: flex; gap: 1rem; align-items: center; position: relative; z-index: 100;">
-        <button id="btn-request-inventory" class="btn-action" style="padding: 0.5rem 1.5rem; font-size: 0.65rem; border: 1px solid rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.1); color: #c084fc; letter-spacing: 1px; cursor: pointer; box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); animation: pulse-purple 2s infinite;">📦 REQUEST REFILL</button>
-        <style>
-          @keyframes pulse-purple {
-            0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
-          }
-          
-          /* User Dropdown Styles */
-          .user-dropdown-container { position: relative; }
-          .user-profile-btn {
-            width: 38px; height: 38px; border-radius: 50%;
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; font-size: 1.1rem; cursor: pointer; transition: all 0.3s;
-            display: flex; align-items: center; justify-content: center;
-          }
-          .user-profile-btn:hover { background: rgba(0,255,136,0.1); border-color: rgba(0,255,136,0.3); transform: scale(1.05); }
-          
-          .user-dropdown-menu {
-            position: absolute; top: calc(100% + 12px); right: 0;
-            width: 200px; background: rgba(15, 10, 20, 0.95);
-            backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            display: none; flex-direction: column; overflow: hidden;
-            animation: dropdownFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          }
-          .user-dropdown-menu.active { display: flex; }
-          
-          @keyframes dropdownFadeIn {
-            from { opacity: 0; transform: translateY(10px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-          }
-          
-          .user-dropdown-header { padding: 1rem; display: flex; flex-direction: column; gap: 0.25rem; }
-          .user-dropdown-header #dropdown-staff-name { font-size: 0.75rem; color: #fff; letter-spacing: 1px; }
-          .user-role { font-size: 0.55rem; color: var(--text-dim); letter-spacing: 1px; }
-          .user-dropdown-divider { height: 1px; background: rgba(255,255,255,0.06); }
-          
-          .dropdown-item {
-            padding: 0.85rem 1rem; border: none; background: transparent;
-            color: var(--text-dim); font-family: var(--font-mono); font-size: 0.65rem;
-            letter-spacing: 1px; cursor: pointer; display: flex; align-items: center;
-            justify-content: space-between; transition: all 0.2s;
-          }
-          .dropdown-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
-          .logout-item { color: #ff8a8a; }
-          .logout-item:hover { background: rgba(255,30,30,0.1); color: #ff5555; }
-        </style>
+        <button id="btn-request-inventory" class="btn-action"
+          style="padding: 0.5rem 1.5rem; font-size: 0.65rem; border: 1px solid rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.1); color: #c084fc; letter-spacing: 1px; cursor: pointer; box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); animation: pulse-purple 2s infinite;">📦
+          REQUEST REFILL</button>
 
         <!-- User Profile Dropdown -->
         <div class="user-dropdown-container">
@@ -159,11 +261,20 @@
     </header>
 
     <!-- Emergency Filter Nav -->
-    <div id="staff-filter-nav" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; padding: 0.4rem; background: rgba(15, 15, 20, 0.5); border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.06);">
-      <button class="staff-filter-btn active" data-filter="ALL" style="flex:1; padding: 0.75rem 0.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: rgba(255,255,255,0.08); color: #fff; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; text-align: center;">ALL <span id="staff-stat-total" style="opacity:0.5;">0</span></button>
-      <button class="staff-filter-btn" data-filter="PENDING" style="flex:1; padding: 0.75rem 0.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; text-align: center;">PENDING <span id="staff-stat-pending" style="color: var(--crisis-red); font-weight: bold;">0</span></button>
-      <button class="staff-filter-btn" data-filter="RESPONDING" style="flex:1; padding: 0.75rem 0.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; text-align: center;">ACTIVE <span id="staff-stat-responding" style="color: var(--crisis-blue); font-weight: bold;">0</span></button>
-      <button class="staff-filter-btn" data-filter="RESOLVED" style="flex:1; padding: 0.75rem 0.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; text-align: center;">RESOLVED <span id="staff-stat-resolved" style="color: var(--crisis-green); font-weight: bold;">0</span></button>
+    <div id="staff-filter-nav"
+      style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; padding: 0.4rem; background: rgba(15, 15, 20, 0.5); border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.06);">
+      <button class="staff-filter-btn active" data-filter="ALL"
+        style="flex:1; padding: 0.75rem 0.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: rgba(255,255,255,0.08); color: #fff; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; text-align: center;">ALL
+        <span id="staff-stat-total" style="opacity:0.5;">0</span></button>
+      <button class="staff-filter-btn" data-filter="PENDING"
+        style="flex:1; padding: 0.75rem 0.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; text-align: center;">PENDING
+        <span id="staff-stat-pending" style="color: var(--crisis-red); font-weight: bold;">0</span></button>
+      <button class="staff-filter-btn" data-filter="RESPONDING"
+        style="flex:1; padding: 0.75rem 0.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; text-align: center;">ACTIVE
+        <span id="staff-stat-responding" style="color: var(--crisis-blue); font-weight: bold;">0</span></button>
+      <button class="staff-filter-btn" data-filter="RESOLVED"
+        style="flex:1; padding: 0.75rem 0.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; text-align: center;">RESOLVED
+        <span id="staff-stat-resolved" style="color: var(--crisis-green); font-weight: bold;">0</span></button>
     </div>
 
     <div id="alert-feed" class="alert-grid">
@@ -175,7 +286,8 @@
   </div>
 
   <!-- New Emergency Popup Overlay -->
-  <div id="emergency-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; align-items:center; justify-content:center; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); animation: popupFadeIn 0.3s ease;">
+  <div id="emergency-popup"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; align-items:center; justify-content:center; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); animation: popupFadeIn 0.3s ease;">
     <div id="emergency-popup-card" style="
       background: rgba(15, 10, 20, 0.92); border: 1px solid rgba(255, 30, 30, 0.3);
       border-radius: 16px; padding: 2rem 2.5rem; max-width: 440px; width: 90%;
@@ -185,12 +297,21 @@
     ">
       <!-- Pulsing alert icon -->
       <div style="font-size: 2.5rem; margin-bottom: 0.75rem; animation: pulse-icon 1s infinite;">🚨</div>
-      <div style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--crisis-red); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.5rem; opacity: 0.8;">INCOMING EMERGENCY</div>
-      
-      <h2 id="popup-type" style="font-family: var(--font-mono); font-size: 1.3rem; color: #fff; margin-bottom: 0.25rem; letter-spacing: 1px;">---</h2>
-      <div id="popup-room" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--crisis-red); font-weight: bold; margin-bottom: 0.5rem;">ROOM ---</div>
-      <div id="popup-desc" style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem; min-height: 1rem;"></div>
-      <div id="popup-time" style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); margin-bottom: 1.5rem; letter-spacing: 1px;"></div>
+      <div
+        style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--crisis-red); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.5rem; opacity: 0.8;">
+        INCOMING EMERGENCY</div>
+
+      <h2 id="popup-type"
+        style="font-family: var(--font-mono); font-size: 1.3rem; color: #fff; margin-bottom: 0.25rem; letter-spacing: 1px;">
+        ---</h2>
+      <div id="popup-room"
+        style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--crisis-red); font-weight: bold; margin-bottom: 0.5rem;">
+        ROOM ---</div>
+      <div id="popup-desc" style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem; min-height: 1rem;">
+      </div>
+      <div id="popup-time"
+        style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); margin-bottom: 1.5rem; letter-spacing: 1px;">
+      </div>
 
       <div style="display: flex; gap: 0.75rem;">
         <button id="popup-respond" style="
@@ -199,37 +320,59 @@
           font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; cursor: pointer;
           transition: all 0.25s;
         " onmouseover="this.style.background='rgba(0,255,136,0.25)';this.style.boxShadow='0 0 20px rgba(0,255,136,0.2)'"
-           onmouseout="this.style.background='rgba(0,255,136,0.12)';this.style.boxShadow='none'">I'M RESPONDING</button>
+          onmouseout="this.style.background='rgba(0,255,136,0.12)';this.style.boxShadow='none'">I'M RESPONDING</button>
         <button id="popup-escalate" style="
           flex: 1; padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(255, 0, 255, 0.3);
           background: rgba(255, 0, 255, 0.1); color: #ff8aff; font-family: var(--font-mono);
           font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; cursor: pointer;
           transition: all 0.25s;
         " onmouseover="this.style.background='rgba(255,0,255,0.2)';this.style.boxShadow='0 0 20px rgba(255,0,255,0.2)'"
-           onmouseout="this.style.background='rgba(255,0,255,0.1)';this.style.boxShadow='none'">I CAN'T</button>
+          onmouseout="this.style.background='rgba(255,0,255,0.1)';this.style.boxShadow='none'">I CAN'T</button>
       </div>
 
       <button id="popup-dismiss" style="
         margin-top: 1rem; padding: 0.5rem; width: 100%; border: none; border-radius: 6px;
         background: transparent; color: var(--text-muted); font-family: var(--font-mono);
         font-size: 0.55rem; letter-spacing: 1px; cursor: pointer; transition: color 0.2s;
-      " onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'">DISMISS</button>
+      " onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">DISMISS</button>
     </div>
   </div>
 
   <style>
     @keyframes popupFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
+
     @keyframes popupSlideIn {
-      from { opacity: 0; transform: scale(0.9) translateY(20px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
     }
+
     @keyframes pulse-icon {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.15); }
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.15);
+      }
     }
+
     .dashboard-blurred .dashboard-container {
       filter: blur(8px);
       pointer-events: none;
@@ -240,10 +383,13 @@
   <div id="inventory-modal" class="staff-modal-overlay" style="display:none;">
     <div class="staff-modal">
       <h3 id="inventory-modal-title">REQUEST STOCK REFILL</h3>
-      
+
       <div style="margin-bottom: 1rem;">
-        <label style="display:block; font-size:0.6rem; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.4rem;">Your Floor</label>
-        <select id="inv-input-floor" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; font-family: var(--font-mono);">
+        <label
+          style="display:block; font-size:0.6rem; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.4rem;">Your
+          Floor</label>
+        <select id="inv-input-floor"
+          style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; font-family: var(--font-mono);">
           <option value="1">Floor 1</option>
           <option value="2">Floor 2</option>
           <option value="3">Floor 3</option>
@@ -252,8 +398,11 @@
       </div>
 
       <div style="margin-bottom: 1rem;">
-        <label style="display:block; font-size:0.6rem; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.4rem;">Item Name</label>
-        <select id="inv-input-item" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; font-family: var(--font-mono);">
+        <label
+          style="display:block; font-size:0.6rem; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.4rem;">Item
+          Name</label>
+        <select id="inv-input-item"
+          style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; font-family: var(--font-mono);">
           <option value="">Select Item...</option>
           <option value="Oxygen Cylinders">Oxygen Cylinders</option>
           <option value="First Aid Kits">First Aid Kits</option>
@@ -263,17 +412,21 @@
           <option value="Biohazard Bags">Biohazard Bags</option>
         </select>
       </div>
-      
+
       <div style="display: flex; gap: 1rem; margin-top: 1rem;">
         <div style="flex: 1;">
-          <label style="display:block; font-size:0.6rem; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.4rem;">Requested Qty</label>
-          <input type="number" id="inv-input-request" placeholder="0" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; font-family: var(--font-mono);">
+          <label
+            style="display:block; font-size:0.6rem; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.4rem;">Requested
+            Qty</label>
+          <input type="number" id="inv-input-request" placeholder="0"
+            style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; font-family: var(--font-mono);">
         </div>
       </div>
 
       <div class="proof-modal-actions" style="margin-top: 2rem;">
         <button id="inv-modal-submit" class="btn-action btn-resolve" style="flex:2;">SUBMIT REQUEST</button>
-        <button id="inv-modal-cancel" class="btn-action" style="flex:1; background:rgba(255,30,30,0.15); border-color:rgba(255,30,30,0.3); color:#ff8a8a;">CANCEL</button>
+        <button id="inv-modal-cancel" class="btn-action"
+          style="flex:1; background:rgba(255,30,30,0.15); border-color:rgba(255,30,30,0.3); color:#ff8a8a;">CANCEL</button>
       </div>
     </div>
   </div>
@@ -282,8 +435,10 @@
   <div id="proof-modal" class="proof-overlay" style="display:none;">
     <div class="proof-modal glass">
       <div class="proof-modal-header">
-        <h2 class="font-mono" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 3px;">Submit Proof of Resolution</h2>
-        <p style="color: var(--text-dim); font-size: 0.75rem; margin-top: 0.4rem;">Select the type of evidence to submit</p>
+        <h2 class="font-mono" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 3px;">Submit Proof
+          of Resolution</h2>
+        <p style="color: var(--text-dim); font-size: 0.75rem; margin-top: 0.4rem;">Select the type of evidence to submit
+        </p>
       </div>
 
       <div class="proof-type-selector">
@@ -292,7 +447,8 @@
       </div>
 
       <div id="proof-area-text" class="proof-input-area">
-        <textarea id="proof-text" class="proof-textarea" placeholder="Describe the action taken to resolve this emergency..." rows="4"></textarea>
+        <textarea id="proof-text" class="proof-textarea"
+          placeholder="Describe the action taken to resolve this emergency..." rows="4"></textarea>
       </div>
 
       <div id="proof-area-image" class="proof-input-area" style="display:none;">
@@ -305,7 +461,8 @@
 
       <div class="proof-modal-actions">
         <button id="proof-submit-btn" class="btn-action btn-resolve" style="flex: 2;">SUBMIT PROOF</button>
-        <button id="proof-cancel-btn" class="btn-action" style="flex: 1; background: rgba(255,30,30,0.15); border-color: rgba(255,30,30,0.3); color: #ff8a8a;">CANCEL</button>
+        <button id="proof-cancel-btn" class="btn-action"
+          style="flex: 1; background: rgba(255,30,30,0.15); border-color: rgba(255,30,30,0.3); color: #ff8a8a;">CANCEL</button>
       </div>
     </div>
   </div>
@@ -321,9 +478,12 @@
     const q = query(collection(db, 'broadcasts'), where('active', '==', true));
     onSnapshot(q, (snap) => {
       const existing = document.getElementById('live-broadcast-banner');
-      if (existing) existing.remove();
-      if (snap.empty) return;
-      
+      if (snap.empty) {
+        if (existing) existing.remove();
+        document.querySelector('.dashboard-container').style.marginTop = '0';
+        return;
+      }
+
       // Sort in memory to avoid index requirement
       const docs = snap.docs.map(d => d.data());
       docs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
@@ -331,11 +491,22 @@
       const banner = document.createElement('div');
       banner.id = 'live-broadcast-banner';
       banner.className = 'broadcast-banner';
-      banner.innerHTML = `<span class="banner-icon">📡</span> ${latest.message}`;
+
+      const icon = document.createElement('span');
+      icon.className = 'banner-icon';
+      icon.textContent = '📡';
+
+      const text = document.createTextNode(` ${latest.message}`);
+
+      banner.appendChild(icon);
+      banner.appendChild(text);
       document.body.prepend(banner);
       // Push content down
       document.querySelector('.dashboard-container').style.marginTop = '50px';
+    }, (err) => {
+      console.error("Broadcast Sync Error:", err);
     });
   </script>
 </body>
+
 </html>

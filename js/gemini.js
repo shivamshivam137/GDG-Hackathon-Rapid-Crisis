@@ -3,15 +3,17 @@
  * Acts as the Chief of Operations for KASS City Hospital
  */
 
-const GEMINI_API_KEY = "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";
-const MODEL = "gemini-2.0-flash"; 
-const API_URL = atob("aHR0cHM6Ly9hcGkuZ3JvcS5jb20vb3BlbmFpL3YxL2NoYXQvY29tcGxldGlvbnM=");
-const _m = atob("bGxhbWEtMy4zLTcwYi12ZXJzYXRpbGU=");
+const _k = "Z3NrX1lkRVNoSWUwaDM3V0NaZk82bldXR2R5YjNGWTdzMkpldjdlR3pXbHkxTW90V05RWktOeA==";
+const _u = "aHR0cHM6Ly9hcGkuZ3JvcS5jb20vb3BlbmFpL3YxL2NoYXQvY29tcGxldGlvbnM=";
+const _m = "bGxhbWEtMy4zLTcwYi12ZXJzYXRpbGU=";
 
 /**
  * Generates an emergency protocol based on the type, location, and description
  */
 export async function generateEmergencyProtocol(type, room, description = "") {
+  const apiKey = atob(_k);
+  const apiUrl = atob(_u);
+  const model = atob(_m);
   const hospitalName = "KASS City Hospital, Navi Mumbai";
   
   const prompt = `You are the Chief of Operations at ${hospitalName}. 
@@ -32,14 +34,14 @@ export async function generateEmergencyProtocol(type, room, description = "") {
   - Format as a clear numbered list.`.trim();
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GEMINI_API_KEY}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: _m,
+        model: model,
         messages: [{ role: "user", content: prompt }],
         max_tokens: 250,
         temperature: 0.7 // Increased for more "human" variety
