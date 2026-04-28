@@ -1,11 +1,21 @@
 import { subscribeToAlerts, claimAlert, resolveAlert, escalateAlert } from './alerts.js';
 import { generateEmergencyProtocol } from './gemini.js';
 import { db, auth } from './config.js';
-import { doc, updateDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, updateDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { initUI, makeTiltable, showNotification } from './ui.js';
 
 initUI();
+
+// 0. Ensure base auth for Firestore access
+(async () => {
+  try {
+    if (!auth.currentUser) await signInAnonymously(auth);
+    console.log("Staff session authenticated anonymously.");
+  } catch (err) {
+    console.error("Auth initialization failed:", err);
+  }
+})();
 
 // =============================================
 // 0. STAFF LOGIN SYSTEM
@@ -19,15 +29,29 @@ const staffNameBadge = document.getElementById('dropdown-staff-name');
 const userProfileTrigger = document.getElementById('user-profile-trigger');
 const userDropdownMenu = document.getElementById('user-dropdown-menu');
 
-// Populate staff dropdown from Firestore
-const staffQ = query(collection(db, 'staff_directory'), orderBy('name', 'asc'));
+// Populate staff dropdown from Firestore (Limited to 100)
+const staffQ = query(collection(db, 'staff_directory'), orderBy('name', 'asc'), limit(100));
 onSnapshot(staffQ, (snap) => {
   const staff = snap.docs.map(d => d.data());
   if (loginSelect) {
-    loginSelect.innerHTML = '<option value="">— Tap to select your name —</option>' +
-      staff.map(s => `<option value="${s.name}">${s.name} (${s.role || 'Staff'})</option>`).join('');
+    const options = staff.map(s => {
+      const escapedName = escapeHTML(s.name);
+      const escapedRole = escapeHTML(s.role || 'Staff');
+      return `<option value="${escapedName}">${escapedName} (${escapedRole})</option>`;
+    });
+    loginSelect.innerHTML = '<option value="">— Tap to select your name —</option>' + options.join('');
   }
+}, (err) => {
+  console.error("Staff Directory Sync Error:", err);
+  showNotification("Permission error: Staff directory inaccessible.", "error");
 });
+
+function escapeHTML(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
 
 function enterDashboard(name) {
   loggedInStaffName = name;
@@ -131,15 +155,44 @@ export function initInventorySystem() {
     }
   });
 
-  // 2. Dynamic Dropdown Sync
-  const q = query(collection(db, 'inventory'), orderBy('itemName', 'asc'));
+  let allInventory = [];
+
+  // 2. Dynamic Dropdown Sync (Filtered by Floor)
+  const q = query(collection(db, 'inventory'), orderBy('itemName', 'asc'), limit(500));
   onSnapshot(q, (snap) => {
-    if (!invItemSelect) return;
-    const items = snap.docs.map(d => d.data().itemName);
-    const uniqueItems = [...new Set(items)].filter(Boolean);
-    invItemSelect.innerHTML = '<option value="">Select Item...</option>' + 
-      uniqueItems.map(name => `<option value="${name}">${name}</option>`).join('');
+    allInventory = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    updateItemDropdown();
   }, (err) => console.error("Inventory Sync Error:", err));
+
+  const floorSelect = document.getElementById('inv-input-floor');
+  floorSelect?.addEventListener('change', updateItemDropdown);
+
+  function updateItemDropdown() {
+    if (!invItemSelect || !floorSelect) return;
+    
+    const selectedFloor = parseInt(floorSelect.value);
+    
+    // Filter by floor and de-duplicate names (case-insensitive + trimmed)
+    const floorItems = allInventory.filter(i => parseInt(i.floor) === selectedFloor);
+    
+    const seenNames = new Set();
+    const uniqueItems = [];
+    
+    floorItems.forEach(i => {
+      const normalized = (i.itemName || '').toLowerCase().trim();
+      if (normalized && !seenNames.has(normalized)) {
+        seenNames.add(normalized);
+        uniqueItems.push(i.itemName.trim());
+      }
+    });
+
+    if (uniqueItems.length === 0) {
+      invItemSelect.innerHTML = '<option value="">— No items found on this floor —</option>';
+    } else {
+      invItemSelect.innerHTML = '<option value="">Select Item...</option>' + 
+        uniqueItems.map(name => `<option value="${escapeHTML(name)}">${escapeHTML(name)}</option>`).join('');
+    }
+  }
 
   // 3. Submit Handler
   document.getElementById('inv-modal-submit')?.addEventListener('click', async () => {
@@ -165,7 +218,7 @@ export function initInventorySystem() {
         status: 'pending',
         createdAt: serverTimestamp()
       });
-      showNotification(`Refill request for ${item} sent to Admin.`, "success");
+      showNotification(`Refill request for ${escapeHTML(item)} sent to Admin.`, "success");
       if (invModal) invModal.style.display = 'none';
       document.getElementById('inv-input-request').value = '';
     } catch (error) {
@@ -234,6 +287,7 @@ const popupDesc = document.getElementById('popup-desc');
 const popupTime = document.getElementById('popup-time');
 let seenAlertIds = new Set();
 let popupAlertId = null;
+const sessionAiProcessed = new Set(); // Safety latch: Track alerts handled in this session
 
 function showEmergencyPopup(alert) {
   popupAlertId = alert.id;
@@ -277,7 +331,7 @@ document.getElementById('popup-dismiss')?.addEventListener('click', () => {
 subscribeToAlerts((alerts) => {
   allAlerts = alerts;
   updateStaffStats(alerts);
-  renderAlerts(alerts);
+  debouncedRender(alerts);
   
   // Detect new OPEN alerts that haven't been seen yet
   const newOpenAlerts = alerts.filter(a => a.status === 'OPEN' && !seenAlertIds.has(a.id));
@@ -291,7 +345,19 @@ subscribeToAlerts((alerts) => {
   // Track all seen alert IDs
   alerts.forEach(a => seenAlertIds.add(a.id));
   prevAlertCount = alerts.length;
+}, (err) => {
+  console.error("Critical Alert Subscription Error:", err);
+  showNotification("System error: Unable to sync alerts. Check your internet or permissions.", "error");
 });
+
+// Debounce helper for rendering
+let renderTimeout = null;
+function debouncedRender(alerts) {
+  if (renderTimeout) clearTimeout(renderTimeout);
+  renderTimeout = setTimeout(() => {
+    renderAlerts(alerts);
+  }, 100); // Batch updates within 100ms
+}
 
 function renderAlerts(alerts) {
   const filtered = getFilteredAlerts(alerts);
@@ -310,28 +376,32 @@ function renderAlerts(alerts) {
     card.className = `alert-card glass type-${alert.emergencyType}`;
     
     let suggestion = alert.geminiSuggestion;
-    if (!suggestion && alert.status !== 'RESOLVED' && alert.status !== 'ESCALATED') {
-      suggestion = "✦ AI is analyzing protocol...";
+    const isProcessing = alert.aiProcessing || sessionAiProcessed.has(alert.id);
+
+    if (!suggestion && alert.status !== 'RESOLVED' && alert.status !== 'ESCALATED' && !isProcessing) {
+      suggestion = "✦ Gemini is analyzing protocol...";
+      // CRITICAL: Stop the loop by marking it as processed immediately
+      sessionAiProcessed.add(alert.id);
       triggerGeminiSuggestion(alert);
     }
 
     card.innerHTML = `
       <div class="card-header">
-        <div class="room-badge">ROOM ${alert.roomNumber}</div>
+        <div class="room-badge">ROOM ${escapeHTML(String(alert.roomNumber))}</div>
         <div class="status-badge status-${alert.status}">${alert.status}</div>
       </div>
       <div class="card-body">
-        <p class="font-mono">${alert.emergencyType} reported • ${formatTime(alert.createdAt)}</p>
-        ${alert.description ? `<p style="font-size: 0.8rem; color: #fff; margin-top: 0.5rem; border-left: 2px solid var(--crisis-blue); padding-left: 0.5rem;">${alert.description}</p>` : ''}
-        ${alert.responderName ? `<p style="font-size: 0.7rem; color: var(--crisis-blue)">→ ${alert.responderName} is responding</p>` : ''}
-        ${alert.proofType === 'text' && alert.proofText ? `<div class="proof-evidence" style="margin-top: 0.5rem;">📝 ${alert.proofText}</div>` : ''}
-        ${alert.proofType === 'image' && alert.proofFileName ? `<div class="proof-evidence" style="margin-top: 0.5rem;">📷 ${alert.proofFileName}</div>` : ''}
+        <p class="font-mono">${escapeHTML(alert.emergencyType)} reported • ${formatTime(alert.createdAt)}</p>
+        ${alert.description ? `<p style="font-size: 0.8rem; color: #fff; margin-top: 0.5rem; border-left: 2px solid var(--crisis-blue); padding-left: 0.5rem;">${escapeHTML(alert.description)}</p>` : ''}
+        ${alert.responderName ? `<p style="font-size: 0.7rem; color: var(--crisis-blue)">→ ${escapeHTML(alert.responderName)} is responding</p>` : ''}
+        ${alert.proofType === 'text' && alert.proofText ? `<div class="proof-evidence" style="margin-top: 0.5rem;">📝 ${escapeHTML(alert.proofText)}</div>` : ''}
+        ${alert.proofType === 'image' && alert.proofFileName ? `<div class="proof-evidence" style="margin-top: 0.5rem;">📷 ${escapeHTML(alert.proofFileName)}</div>` : ''}
         
         <div class="gemini-panel" style="margin-top: 1rem;">
           <div class="gemini-header">
             <span>✦ Gemini AI Protocol</span>
           </div>
-          <div class="gemini-content">${suggestion ? suggestion.split('\n').map(l => l.trim()).filter(l => l).join('<br>') : 'Protocol archived.'}</div>
+          <div class="gemini-content">${suggestion ? escapeHTML(suggestion).split('\n').map(l => l.trim()).filter(l => l).join('<br>') : 'Protocol archived.'}</div>
         </div>
       </div>
       <div class="card-actions" style="flex-wrap: wrap;">
@@ -521,27 +591,48 @@ function playAlertSound() {
 
 const pendingTriggers = new Set();
 async function triggerGeminiSuggestion(alert) {
+  // 1. Client-side overlap guard
   if (pendingTriggers.has(alert.id)) return;
   pendingTriggers.add(alert.id);
+  sessionAiProcessed.add(alert.id);
 
-  const delay = [...pendingTriggers].indexOf(alert.id) * 2000;
-  await new Promise(resolve => setTimeout(resolve, delay));
-
-  const protocol = await generateEmergencyProtocol(alert.emergencyType, alert.roomNumber, alert.description);
-
-  if (protocol.includes("Rate limit reached")) {
-    pendingTriggers.delete(alert.id);
-    return;
+  // 2. Database-level lock to prevent other tabs from looping
+  const alertRef = doc(db, 'alerts', alert.id);
+  try {
+    await updateDoc(alertRef, { aiProcessing: true });
+  } catch (e) {
+    console.warn("Could not set AI lock:", e);
   }
 
+  // 3. Staggered execution to respect rate limits
+  const delay = [...pendingTriggers].indexOf(alert.id) * 2500;
+  await new Promise(resolve => setTimeout(resolve, delay));
+
   try {
-    const alertRef = doc(db, 'alerts', alert.id);
-    await updateDoc(alertRef, {
-      geminiSuggestion: protocol
-    });
+    const protocol = await generateEmergencyProtocol(alert.emergencyType, alert.roomNumber, alert.description);
+
+    const updateData = { 
+      aiProcessing: false, // Release lock
+      geminiSuggestion: protocol || "✦ Standard emergency protocol recommended. (AI fallback)"
+    };
+
+    // If it's a known error/fallback, ensure we don't try again
+    if (!protocol || protocol.includes("Rate limit reached") || protocol.includes("error")) {
+       updateData.geminiSuggestion = "✦ Standard emergency protocol recommended. (AI currently at capacity)";
+    }
+
+    await updateDoc(alertRef, updateData);
   } catch (error) {
-    console.error("Error saving Gemini protocol:", error);
+    console.error("AI Protocol Generation Error:", error);
+    // Even on error, mark as done in DB to stop the loop
+    try {
+      await updateDoc(alertRef, { 
+        aiProcessing: false, 
+        geminiSuggestion: "✦ System protocol active. (AI link unavailable)" 
+      });
+    } catch (e) {}
   } finally {
+    // We KEEP it in sessionAiProcessed so it never triggers again for this session
     pendingTriggers.delete(alert.id);
   }
 }

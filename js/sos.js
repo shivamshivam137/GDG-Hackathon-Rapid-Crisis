@@ -138,10 +138,19 @@ function updateTimeline(data) {
   };
 
   // Visibility logic for Admin Step
-  if (data.status === 'ADMIN_RESPONDING' || data.status === 'ESCALATED') {
-    if (stepAdmin) stepAdmin.style.display = 'flex';
-  } else if (stepAdmin && data.status !== 'RESOLVED') {
-    stepAdmin.style.display = 'none';
+  // Show if current status is admin-related OR if the alert was previously handled/resolved by admin
+  const isAdminInvolved = data.status === 'ADMIN_RESPONDING' || 
+                          data.status === 'ESCALATED' || 
+                          data.adminAction === true || 
+                          data.adminResolvedBy != null;
+
+  if (stepAdmin) {
+    if (isAdminInvolved) {
+      stepAdmin.style.display = 'flex';
+    } else if (data.status !== 'RESOLVED') {
+      // Only hide if not resolved (if resolved and wasn't admin involved, keep hidden)
+      stepAdmin.style.display = 'none';
+    }
   }
 
   // Logic flow
@@ -149,7 +158,12 @@ function updateTimeline(data) {
     setStep(stepSent, 'completed');
     setStep(stepAi, 'completed');
     setStep(stepResponding, 'completed');
-    if (stepAdmin && stepAdmin.style.display !== 'none') setStep(stepAdmin, 'completed');
+    
+    // If admin was involved, mark that step completed too
+    if (stepAdmin && stepAdmin.style.display !== 'none') {
+      setStep(stepAdmin, 'completed');
+    }
+    
     setStep(stepResolved, 'active');
 
     // Auto-redirect logic
@@ -180,20 +194,19 @@ function updateTimeline(data) {
     setStep(stepAdmin, null);
     setStep(stepResolved, null);
     
-    // Update the responding step text if we have a responder name
     if (data.responderName) {
-      stepResponding.querySelector('.step-desc').innerText = `Responder ${data.responderName} is en route.`;
+      const desc = stepResponding.querySelector('.step-desc');
+      if (desc) desc.innerText = `Responder ${data.responderName} is en route.`;
     }
   } else if (data.geminiSuggestion) {
-    // Protocol has been generated
     setStep(stepSent, 'completed');
     setStep(stepAi, 'active');
     setStep(stepResponding, null);
     setStep(stepAdmin, null);
     setStep(stepResolved, null);
-    stepAi.querySelector('.step-desc').innerText = "Emergency protocol active.";
+    const desc = stepAi.querySelector('.step-desc');
+    if (desc) desc.innerText = "Emergency protocol active.";
   } else {
-    // Just sent
     setStep(stepSent, 'active');
     setStep(stepAi, null);
     setStep(stepResponding, null);

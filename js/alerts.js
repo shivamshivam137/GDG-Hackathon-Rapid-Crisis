@@ -1,14 +1,17 @@
 import { db } from './config.js';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, addDoc, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 /**
  * Listen for all alerts in real-time
  */
 export function subscribeToAlerts(callback) {
-  const q = query(collection(db, 'alerts'), orderBy('createdAt', 'desc'));
+  // Hard limit to last 50 alerts to prevent OOM and excessive reads
+  const q = query(collection(db, 'alerts'), orderBy('createdAt', 'desc'), limit(50));
   return onSnapshot(q, (snapshot) => {
     const alerts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     callback(alerts);
+  }, (error) => {
+    console.error("Firestore Alerts Subscription Error:", error);
   });
 }
 

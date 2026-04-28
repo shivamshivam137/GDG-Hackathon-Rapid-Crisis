@@ -7,7 +7,7 @@ import { logIncident } from './alerts.js';
 import { showNotification } from './ui.js';
 import {
   collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc,
-  doc, serverTimestamp, where, getDocs, Timestamp
+  doc, serverTimestamp, where, getDocs, Timestamp, limit
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // =============================================
@@ -38,15 +38,15 @@ export function initInventory() {
 
   let currentInventory = []; 
 
-  // Listen to inventory collection
-  const invQ = query(collection(db, 'inventory'), orderBy('floor', 'asc'));
+  // Listen to inventory collection (limited to 50 items)
+  const invQ = query(collection(db, 'inventory'), orderBy('floor', 'asc'), limit(50));
   onSnapshot(invQ, (snap) => {
     currentInventory = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderInventoryTable(currentInventory, tableBody);
   });
 
-  // Listen to refill_requests collection
-  const refillQ = query(collection(db, 'refill_requests'), orderBy('createdAt', 'desc'));
+  // Listen to refill_requests collection (last 50)
+  const refillQ = query(collection(db, 'refill_requests'), orderBy('createdAt', 'desc'), limit(50));
   onSnapshot(refillQ, (snap) => {
     const requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderRefillRequests(requests, refillGrid, currentInventory);
@@ -136,11 +136,19 @@ function renderRefillRequests(requests, grid, inventory) {
   }
   grid.innerHTML = requests.map(r => {
     // Find current quantity from inventory state
-    const invItem = inventory.find(i => 
-      i.itemName?.toLowerCase() === r.itemName?.toLowerCase() && 
-      parseInt(i.floor) === parseInt(r.floor)
-    );
-    const actualQty = invItem ? invItem.quantity : '?';
+    // Find current quantity from inventory state (Robust Matching)
+    const invItem = inventory.find(i => {
+      const dbName = (i.itemName || '').toLowerCase().trim();
+      const reqName = (r.itemName || '').toLowerCase().trim();
+      const floorMatch = parseInt(i.floor) === parseInt(r.floor);
+      
+      // Exact match or plural/singular fallback (e.g. "Oxygen Cylinders" vs "Oxygen Cylinder")
+      const nameMatch = dbName === reqName || 
+                        dbName.replace(/s$/, '') === reqName.replace(/s$/, '');
+      
+      return nameMatch && floorMatch;
+    });
+    const actualQty = invItem !== undefined ? invItem.quantity : '?';
 
     const statusClass = r.status === 'approved' ? 'refill-approved' : r.status === 'rejected' ? 'refill-rejected' : 'refill-pending';
     const actionsHtml = r.status === 'pending' ? `
@@ -358,7 +366,8 @@ export function initLogbook() {
   const container = document.getElementById('logbook-timeline');
   if (!container) return;
 
-  const q = query(collection(db, 'incident_log'), orderBy('timestamp', 'desc'));
+  // Limit to last 50 entries to prevent performance death
+  const q = query(collection(db, 'incident_log'), orderBy('timestamp', 'desc'), limit(50));
   onSnapshot(q, (snap) => {
     allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     applyLogFilters();
@@ -446,8 +455,8 @@ export function initAnalytics() {
   const container = document.getElementById('analytics-container');
   if (!container) return;
 
-  // We compute analytics from the alerts collection
-  const q = query(collection(db, 'alerts'), orderBy('createdAt', 'desc'));
+  // We compute analytics from the last 100 alerts to stay efficient
+  const q = query(collection(db, 'alerts'), orderBy('createdAt', 'desc'), limit(100));
   onSnapshot(q, (snap) => {
     const alerts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderAnalytics(alerts, container);
@@ -492,19 +501,6 @@ function renderAnalytics(alerts, container) {
     if (a.createdAt?.toDate) hourCounts[a.createdAt.toDate().getHours()]++;
   });
   const peakHour = hourCounts.indexOf(Math.max(...hourCounts));
-
-  // 4. Escalation rate
-  const escalated = alerts.filter(a => a.status === 'ESCALATED').length;
-  const escRate = alerts.length > 0 ? ((escalated / alerts.length) * 100).toFixed(1) : 0;
-
-  // 5. Floor-wise resolution
-  const floorResolution = {};
-  alerts.forEach(a => {
-    const floor = a.floor || extractFloor(a.roomNumber);
-    if (!floorResolution[floor]) floorResolution[floor] = { total: 0, resolved: 0 };
-    floorResolution[floor].total++;
-    if (a.status === 'RESOLVED') floorResolution[floor].resolved++;
-  });
 
   // Type colors
   const typeColors = { FIRE: 'red', MEDICAL: 'blue', SECURITY: 'yellow', FLOOD: 'cyan', OTHER: 'green' };
@@ -561,28 +557,6 @@ function renderAnalytics(alerts, container) {
         }).join('')}
       </div>
     </div>
-
-    <!-- Escalation Rate -->
-    <div class="analytics-card">
-      <div class="card-title">Escalation Rate</div>
-      <div class="big-stat" style="color:${escalated > 0 ? '#ff8aff' : 'var(--crisis-green)'}">${escRate}%</div>
-      <div class="stat-sub">${escalated} of ${alerts.length} alerts escalated</div>
-    </div>
-
-    <!-- Floor Resolution -->
-    <div class="analytics-card">
-      <div class="card-title">Floor-Wise Resolution</div>
-      <div style="margin-top:0.5rem;">
-        ${Object.entries(floorResolution).map(([floor, data]) => {
-          const pct = data.total > 0 ? ((data.resolved / data.total) * 100).toFixed(0) : 0;
-          return `<div class="bar-row">
-            <span class="bar-label">Floor ${floor}</span>
-            <div class="bar-track"><div class="bar-fill green" style="--target-width:${pct}%"></div></div>
-            <span class="bar-value">${pct}%</span>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
   `;
 }
 
@@ -611,8 +585,8 @@ export function initBroadcast() {
   sendBtn.addEventListener('click', sendBroadcast);
   dismissBtn?.addEventListener('click', dismissAllBroadcasts);
 
-  // Listen to broadcasts
-  const q = query(collection(db, 'broadcasts'), orderBy('createdAt', 'desc'));
+  // Listen to broadcasts (last 20)
+  const q = query(collection(db, 'broadcasts'), orderBy('createdAt', 'desc'), limit(20));
   onSnapshot(q, (snap) => {
     const broadcasts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderBroadcastHistory(broadcasts, historyContainer);
