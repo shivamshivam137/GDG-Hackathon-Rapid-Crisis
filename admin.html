@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADMIN COMMAND | Rapid Crisis Response</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/admin-panels.css">
+</head>
+
+<body>
+  <!-- Ambient Animated Background -->
+  <div class="ambient-bg">
+    <div class="orb orb-red"></div>
+    <div class="orb orb-blue"></div>
+    <div class="orb orb-orange"></div>
+    <div class="noise-overlay"></div>
+  </div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <div>
+        <h1>Admin Command Center</h1>
+        <div class="sys-clock font-mono"
+          style="font-size: 0.7rem; color: var(--text-dim); margin-top: 0.5rem; letter-spacing: 2px; text-shadow: 0 0 5px rgba(255,255,255,0.2);">
+        </div>
+      </div>
+      <div class="live-indicator">
+        <span class="live-dot"></span>
+        AI Oversight Active
+      </div>
+    </header>
+
+    <!-- 3D MAP SECTION -->
+    <section class="map-section">
+      <div class="map-header">
+        <div class="floor-info">
+          <span>STRATEGIC BUILDING OVERVIEW</span>
+          <h2 id="active-floor-label">LEVEL 01: GROUND</h2>
+        </div>
+        <div class="map-controls">
+          <div class="view-toggle">
+            <button id="toggle-2d" class="toggle-btn">2D</button>
+            <button id="toggle-3d" class="toggle-btn active">3D</button>
+          </div>
+          <span id="map-status" style="color: var(--crisis-green);">STATUS: NOMINAL</span>
+        </div>
+      </div>
+
+      <div class="map-container-main">
+        <!-- Floor Selection Sidebar -->
+        <div class="floor-selector">
+          <button class="floor-btn" data-floor="4">L4</button>
+          <button class="floor-btn" data-floor="3">L3</button>
+          <button class="floor-btn" data-floor="2">L2</button>
+          <button class="floor-btn active" data-floor="1">L1</button>
+        </div>
+
+        <div class="map-viewport">
+          <!-- Holographic Room Tooltip -->
+          <div id="map-tooltip" class="map-tooltip">
+            <div class="tooltip-header">ROOM DATA</div>
+            <div class="tooltip-body">
+              <span id="tooltip-room-id">---</span>
+              <span id="tooltip-status" class="status-nominal">SECURE</span>
+            </div>
+            <div class="tooltip-footer">TELEMETRY ACTIVE</div>
+          </div>
+
+          <div class="map-base" id="main-map">
+            <!-- FLOOR 4: EXECUTIVE VIP WING -->
+            <div class="map-floor floor-4" id="floor-4">
+              <div class="map-room r401" data-room="401">401<div class="beacon"></div></div>
+              <div class="map-room r402" data-room="402">402<div class="beacon"></div></div>
+              <div class="map-room r403" data-room="403">403<div class="beacon"></div></div>
+              <div class="map-room r404" data-room="404">404<div class="beacon"></div></div>
+              <div class="map-room r405" data-room="405">405<div class="beacon"></div></div>
+              <div class="map-room r406" data-room="406">406<div class="beacon"></div></div>
+              <div class="map-room r407" data-room="407">407<div class="beacon"></div></div>
+              <div class="map-room r408" data-room="408">408<div class="beacon"></div></div>
+              <div class="map-room r409" data-room="409">409<div class="beacon"></div></div>
+              <div class="map-room r410" data-room="410">VIP-LOUNGE<div class="beacon"></div></div>
+            </div>
+
+            <!-- FLOOR 3: CRITICAL CARE & SPECIALIZED SURGERY -->
+            <div class="map-floor floor-3" id="floor-3">
+              <!-- SURGERY BLOCK -->
+              <div class="map-room r301" data-room="OT-1"><div class="door"></div>OT-1<div class="beacon"></div></div>
+              <div class="map-room r302" data-room="OT-2"><div class="door"></div>OT-2<div class="beacon"></div></div>
+              <div class="map-room r303" data-room="OT-3"><div class="door"></div>OT-3<div class="beacon"></div></div>
+              <div class="map-room r304" data-room="OT-4"><div class="door"></div>OT-4<div class="beacon"></div></div>
+              
+              <!-- ICU CLUSTER -->
+              <div class="map-room r305" data-room="ICU-1"><div class="door"></div>ICU-1<div class="beacon"></div></div>
+              <div class="map-room r306" data-room="ICU-2"><div class="door"></div>ICU-2<div class="beacon"></div></div>
+              <div class="map-room r307" data-room="ICU-3"><div class="door"></div>ICU-3<div class="beacon"></div></div>
+              <div class="map-room r308" data-room="ICU-4"><div class="door"></div>ICU-4<div class="beacon"></div></div>
+              
+              <!-- SPECIALIZED DEPARTMENTS -->
+              <div class="map-room r311" data-room="CARDIOLOGY"><div class="door"></div>CARDIOLOGY<div class="beacon"></div></div>
+              <div class="map-room r312" data-room="ONCOLOGY"><div class="door"></div>ONCOLOGY<div class="beacon"></div></div>
+              <div class="map-room r313" data-room="DIALYSIS"><div class="door"></div>DIALYSIS CENTER<div class="beacon"></div></div>
+              <div class="map-room r314" data-room="MRI-1"><div class="door"></div>MRI UNIT 1<div class="beacon"></div></div>
+              <div class="map-room r315" data-room="MRI-2"><div class="door"></div>MRI UNIT 2<div class="beacon"></div></div>
+              <div class="map-room r316" data-room="CT-SCAN"><div class="door"></div>CT SCAN HUB<div class="beacon"></div></div>
+              <div class="map-room r317" data-room="BLOOD-BANK"><div class="door"></div>BLOOD BANK<div class="beacon"></div></div>
+              <div class="map-room r318" data-room="PHYSIO"><div class="door"></div>PHYSIO DEPT<div class="beacon"></div></div>
+              <div class="map-room r319" data-room="ISO-1"><div class="door"></div>ISO-WARD 1<div class="beacon"></div></div>
+              <div class="map-room r320" data-room="ISO-2"><div class="door"></div>ISO-WARD 2<div class="beacon"></div></div>
+              <div class="map-room r321" data-room="BURN-UNIT"><div class="door"></div>BURN UNIT<div class="beacon"></div></div>
+              
+              <!-- SUPPORT ZONES -->
+              <div class="map-room r309" data-room="STERILE"><div class="door"></div>STERILE ZONE<div class="beacon"></div></div>
+              <div class="map-room r310" data-room="NURSE-S3"><div class="door"></div>NURSE S3<div class="beacon"></div></div>
+              <div class="map-room r308" data-room="RECOVERY"><div class="door"></div>RECOVERY<div class="beacon"></div></div>
+            </div>
+
+            <!-- FLOOR 2: HYPER-DENSE MEDICAL PAVILION -->
+            <div class="map-floor floor-2" id="floor-2">
+              <!-- TOP ROW -->
+              <div class="map-room r201" data-room="201"><div class="door"></div>201<div class="beacon"></div></div>
+              <div class="map-room r202" data-room="202"><div class="door"></div>202<div class="beacon"></div></div>
+              <div class="map-room r203" data-room="203"><div class="door"></div>203<div class="beacon"></div></div>
+              <div class="map-room r204" data-room="204"><div class="door"></div>204<div class="beacon"></div></div>
+              <div class="map-room r205" data-room="205"><div class="door"></div>205<div class="beacon"></div></div>
+              <div class="map-room r206" data-room="206"><div class="door"></div>206<div class="beacon"></div></div>
+              <div class="map-room r207" data-room="207"><div class="door"></div>207<div class="beacon"></div></div>
+              <div class="map-room r208" data-room="208"><div class="door"></div>208<div class="beacon"></div></div>
+
+              <!-- CENTRAL ISLAND -->
+              <div class="map-room r220" data-room="S-LOUNGE"><div class="door"></div>STAFF<div class="beacon"></div></div>
+              <div class="map-room r221" data-room="X-RAY"><div class="door"></div>X-RAY<div class="beacon"></div></div>
+              <div class="map-room r222" data-room="STORES"><div class="door"></div>STORES<div class="beacon"></div></div>
+              <div class="map-room r223" data-room="223"><div class="door"></div>223<div class="beacon"></div></div>
+
+              <!-- MIDDLE ROW -->
+              <div class="map-room r224" data-room="224"><div class="door"></div>224<div class="beacon"></div></div>
+              <div class="map-room r225" data-room="225"><div class="door"></div>225<div class="beacon"></div></div>
+              <div class="map-room r226" data-room="226"><div class="door"></div>226<div class="beacon"></div></div>
+              <div class="map-room r227" data-room="227"><div class="door"></div>227<div class="beacon"></div></div>
+
+              <!-- BOTTOM ROW -->
+              <div class="map-room r209" data-room="209"><div class="door"></div>209<div class="beacon"></div></div>
+              <div class="map-room r210" data-room="210"><div class="door"></div>210<div class="beacon"></div></div>
+              <div class="map-room r212" data-room="212"><div class="door"></div>212<div class="beacon"></div></div>
+              <div class="map-room r213" data-room="213"><div class="door"></div>213<div class="beacon"></div></div>
+              <div class="map-room r214" data-room="214"><div class="door"></div>214<div class="beacon"></div></div>
+              <div class="map-room r215" data-room="215"><div class="door"></div>215<div class="beacon"></div></div>
+              <div class="map-room r216" data-room="216"><div class="door"></div>216<div class="beacon"></div></div>
+              <div class="map-room r217" data-room="217"><div class="door"></div>217<div class="beacon"></div></div>
+
+              <!-- WING CONNECTORS -->
+              <div class="map-room r218" data-room="ER-2A"><div class="door"></div>ER-2A<div class="beacon"></div></div>
+              <div class="map-room r219" data-room="ER-2B"><div class="door"></div>ER-2B<div class="beacon"></div></div>
+              <div class="map-room r211" data-room="NURSE-S2"><div class="door"></div>NURSE S2<div class="beacon"></div></div>
+            </div>
+
+            <!-- FLOOR 1: EMERGENCY & SERVICES -->
+            <div class="map-floor floor-1 active" id="floor-1">
+              <div class="map-room r101" data-room="101">101<div class="beacon"></div></div>
+              <div class="map-room r102" data-room="102">102<div class="beacon"></div></div>
+              <div class="map-room r103" data-room="103">103<div class="beacon"></div></div>
+              <div class="map-room r104" data-room="104">TRIAGE<div class="beacon"></div></div>
+              <div class="map-room r105" data-room="ER">ER-A<div class="beacon"></div></div>
+              <div class="map-room r106" data-room="ER-B">ER-B<div class="beacon"></div></div>
+              <div class="map-room r107" data-room="LAB">LAB-1<div class="beacon"></div></div>
+              <div class="map-room r108" data-room="PHARMACY">PHARM<div class="beacon"></div></div>
+              <div class="map-room r109" data-room="RECEPTION">RECEPTION<div class="beacon"></div></div>
+              <div class="map-room r111" data-room="DOC-1">DOC-1<div class="beacon"></div></div>
+              <div class="r112 map-room" data-room="DOC-2">DOC-2<div class="beacon"></div></div>
+              <div class="r113 map-room" data-room="DOC-3">DOC-3<div class="beacon"></div></div>
+              <div class="r114 map-room" data-room="DOC-4">DOC-4<div class="beacon"></div></div>
+              <div class="r115 map-room" data-room="WAITING">WAITING AREA<div class="beacon"></div></div>
+              <div class="map-room r110" data-room="LOBBY">MAIN ENTRANCE<div class="beacon"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Summary -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Alerts</div>
+        <div id="stat-total" class="stat-value">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--crisis-red)">Open</div>
+        <div id="stat-open" class="stat-value" style="color: var(--crisis-red)">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--crisis-blue)">Responding</div>
+        <div id="stat-responding" class="stat-value" style="color: var(--crisis-blue)">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--crisis-green)">Resolved</div>
+        <div id="stat-resolved" class="stat-value" style="color: var(--crisis-green)">0</div>
+      </div>
+    </div>
+
+    <!-- === TAB NAVIGATION === -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-target="panel-alerts">🚨 Live Alerts</button>
+      <button class="admin-tab" data-target="panel-inventory">📦 Inventory</button>
+      <button class="admin-tab" data-target="panel-staff">👥 Staff</button>
+      <button class="admin-tab" data-target="panel-logbook">📋 Logbook</button>
+      <button class="admin-tab" data-target="panel-analytics">📊 Analytics</button>
+      <button class="admin-tab" data-target="panel-broadcast">📡 Broadcast</button>
+    </div>
+
+    <!-- === PANEL 0: LIVE ALERTS (existing) === -->
+    <div id="panel-alerts" class="admin-panel-section active">
+      <div id="admin-feed" class="alert-grid">
+        <!-- Alerts with AI protocols will be injected here -->
+      </div>
+    </div>
+
+    <!-- === PANEL 1: ALL-FLOOR INVENTORY === -->
+    <div id="panel-inventory" class="admin-panel-section">
+      <div class="section-header">
+        <div class="section-title">📦 <span>All-Floor Inventory Overview</span></div>
+        <div class="staff-controls">
+          <button class="btn-add-staff" id="btn-add-inventory">+ ADD ITEM</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="panel-table">
+          <thead><tr>
+            <th>Item</th><th>Floor</th><th>Quantity</th><th>Threshold</th><th>Status</th>
+          </tr></thead>
+          <tbody id="inventory-table-body">
+            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading inventory...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="section-header" style="margin-top:2rem;">
+        <div class="section-title">🔄 <span>Refill Requests</span></div>
+      </div>
+      <div id="refill-requests-grid" class="refill-grid"></div>
+    </div>
+
+    <!-- === PANEL 2: STAFF DIRECTORY === -->
+    <div id="panel-staff" class="admin-panel-section">
+      <div class="section-header">
+        <div class="section-title">👥 <span>Staff Directory & Duty Monitor</span></div>
+        <div class="staff-controls">
+          <button class="btn-add-staff" id="btn-add-staff">+ ADD STAFF</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="panel-table">
+          <thead><tr>
+            <th>Name</th><th>Role</th><th>Floor</th><th>Duty Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="staff-table-body">
+            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading staff...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- === PANEL 3: INCIDENT LOGBOOK === -->
+    <div id="panel-logbook" class="admin-panel-section">
+      <div class="section-header">
+        <div class="section-title">📋 <span>Incident Logbook</span></div>
+        <button class="btn-export" id="btn-export-csv">⬇ EXPORT CSV</button>
+      </div>
+      <div class="logbook-filters">
+        <select id="log-filter-floor">
+          <option value="all">All Floors</option>
+          <option value="1">Floor 1</option>
+          <option value="2">Floor 2</option>
+          <option value="3">Floor 3</option>
+          <option value="4">Floor 4</option>
+        </select>
+        <select id="log-filter-type">
+          <option value="all">All Types</option>
+          <option value="sos">SOS Trigger</option>
+          <option value="status">Status Change</option>
+          <option value="proof">Proof Submission</option>
+          <option value="refill">Refill / Broadcast</option>
+          <option value="auth">Staff Auth</option>
+        </select>
+        <input type="date" id="log-filter-date-start" title="Start Date">
+        <input type="date" id="log-filter-date-end" title="End Date">
+      </div>
+      <div id="logbook-timeline" class="logbook-timeline">
+        <div class="logbook-empty">Loading logbook...</div>
+      </div>
+    </div>
+
+    <!-- === PANEL 4: ANALYTICS DASHBOARD === -->
+    <div id="panel-analytics" class="admin-panel-section">
+      <div class="section-header">
+        <div class="section-title">📊 <span>Analytics Dashboard</span></div>
+      </div>
+      <div id="analytics-container" class="analytics-grid"></div>
+    </div>
+
+    <!-- === PANEL 5: BROADCAST ALERT SYSTEM === -->
+    <div id="panel-broadcast" class="admin-panel-section">
+      <div class="section-header">
+        <div class="section-title">📡 <span>Broadcast Alert System</span></div>
+      </div>
+      <div class="broadcast-composer">
+        <h3>Compose Broadcast</h3>
+        <textarea id="broadcast-message" placeholder="e.g. Drill in 10 minutes — all floors stand by..."></textarea>
+        <div class="broadcast-actions">
+          <button class="btn-broadcast" id="btn-send-broadcast">📡 SEND BROADCAST</button>
+          <button class="btn-dismiss-all" id="btn-dismiss-broadcasts">DISMISS ALL ACTIVE</button>
+        </div>
+      </div>
+      <div class="broadcast-history">
+        <h4>Broadcast History</h4>
+        <div id="broadcast-history-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Staff Add/Edit Modal -->
+  <div id="staff-modal-overlay" class="staff-modal-overlay" style="display:none;">
+    <div class="staff-modal">
+      <h3 id="staff-modal-title">ADD NEW STAFF</h3>
+      <label>Full Name</label>
+      <input type="text" id="staff-input-name" placeholder="e.g. Ravi Kumar">
+      <label>Role</label>
+      <select id="staff-input-role">
+        <option value="STAFF">Staff</option>
+        <option value="ADMIN">Admin</option>
+        <option value="NURSE">Nurse</option>
+        <option value="DOCTOR">Doctor</option>
+        <option value="SECURITY">Security</option>
+      </select>
+      <label>Assigned Floor</label>
+      <select id="staff-input-floor">
+        <option value="1">Floor 1</option>
+        <option value="2">Floor 2</option>
+        <option value="3">Floor 3</option>
+        <option value="4">Floor 4</option>
+      </select>
+      <label>Login PIN (Required)</label>
+      <input type="password" id="staff-input-password" placeholder="Memorable for staff, secure from others" 
+             style="margin-bottom: 0.75rem; padding: 1rem;">
+      <p style="font-size: 0.6rem; color: var(--text-dim); margin-bottom: 2rem; line-height: 1.6; opacity: 0.8; padding: 0 0.25rem;">
+        * This PIN will be used every time staff login. Keep it simple so you can memorise it, but keep it complex so not anybody can enter it.
+      </p>
+      <div class="staff-modal-actions">
+        <button class="btn-action btn-resolve" id="staff-modal-save" style="flex:2;">SAVE</button>
+        <button class="btn-action" id="staff-modal-cancel" style="flex:1; background:rgba(255,30,30,0.15); border-color:rgba(255,30,30,0.3); color:#ff8a8a;">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Media Preview Dialog -->
+  <div id="media-preview" class="proof-overlay" style="display:none;">
+    <div class="proof-modal glass" style="max-width: 720px;">
+      <div id="media-preview-content" style="max-height: 70vh; overflow: auto; border-radius: var(--radius-sm);"></div>
+      <button id="close-preview-btn" class="btn-action" style="margin-top: 1rem; width: 100%; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2);">CLOSE</button>
+    </div>
+  </div>
+
+  <!-- Audio Alert -->
+  <audio id="alert-sound" src="assets/alert.mp3" preload="auto"></audio>
+
+  <!-- Add Inventory Item Modal -->
+  <div id="inventory-item-modal" class="staff-modal-overlay" style="display:none;">
+    <div class="staff-modal">
+      <h3 class="font-mono">ADD INVENTORY ITEM</h3>
+      <label>Item Name</label>
+      <input type="text" id="inv-item-name" placeholder="e.g. Oxygen Cylinder">
+      <label>Floor</label>
+      <select id="inv-item-floor">
+        <option value="1">Floor 1</option>
+        <option value="2">Floor 2</option>
+        <option value="3">Floor 3</option>
+        <option value="4">Floor 4</option>
+      </select>
+      <div style="display:flex; gap:1rem; margin-top: 1rem;">
+        <div style="flex:1;">
+          <label>Initial Qty</label>
+          <input type="number" id="inv-item-qty" value="50">
+        </div>
+        <div style="flex:1;">
+          <label>Alert Threshold</label>
+          <input type="number" id="inv-item-threshold" value="10">
+        </div>
+      </div>
+      <div class="staff-modal-actions" style="margin-top:2rem;">
+        <button class="btn-action btn-resolve" id="inv-item-save" style="flex:2;">SAVE ITEM</button>
+        <button class="btn-action" id="inv-item-cancel" style="flex:1; background:rgba(255,30,30,0.15); border-color:rgba(255,30,30,0.3); color:#ff8a8a;">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+  <script type="module">
+    import { initTabs, initInventory, initStaffDirectory, initLogbook, initAnalytics, initBroadcast, initAutoLogger } from './js/admin-panels.js';
+    initTabs();
+    initInventory();
+    initStaffDirectory();
+    initLogbook();
+    initAnalytics();
+    initBroadcast();
+    initAutoLogger();
+  </script>
+</body>
+
+</html>

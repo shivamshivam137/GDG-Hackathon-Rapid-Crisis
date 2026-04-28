@@ -1,0 +1,336 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+
+:root {
+  /* Crisis Color Palette */
+  --crisis-red: #FF1E1E;
+  --crisis-red-glow: rgba(255, 30, 30, 0.6);
+  --crisis-orange: #FF5A1E;
+  --crisis-green: #00FF88;
+  --crisis-blue: #1E6CFF;
+
+  /* Deep Premium Dark Theme */
+  --bg-dark: #030305;
+  --bg-card: rgba(20, 20, 25, 0.4);
+  --bg-card-hover: rgba(35, 35, 45, 0.5);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-bright: rgba(255, 255, 255, 0.2);
+
+  /* Typography */
+  --text-main: #FFFFFF;
+  --text-dim: #A0A0B0;
+  --text-muted: #555566;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+
+  /* Spacing & Radii */
+  --radius-lg: 28px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+  --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Ambient Animated Background */
+.ambient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, #0a0a0f 0%, #030305 100%);
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: floatOrb 20s infinite alternate ease-in-out;
+}
+
+.orb-red {
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, var(--crisis-red) 0%, transparent 70%);
+  top: -10%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.orb-blue {
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, var(--crisis-blue) 0%, transparent 70%);
+  bottom: -20%;
+  right: -10%;
+  opacity: 0.2;
+  animation-delay: -5s;
+}
+
+.orb-orange {
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, var(--crisis-orange) 0%, transparent 70%);
+  top: 40%;
+  left: 30%;
+  opacity: 0.15;
+  animation-delay: -10s;
+}
+
+@keyframes floatOrb {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(5%, 10%) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-5%, 5%) scale(0.9);
+  }
+
+  100% {
+    transform: translate(10%, -5%) scale(1.05);
+  }
+}
+
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.scanlines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.1));
+  background-size: 100% 4px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+.vignette {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, transparent 50%, rgba(0, 0, 0, 0.6) 130%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Base Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Premium Glassmorphism */
+.glass {
+  background: rgba(15, 15, 20, 0.45);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 24px 48px -12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+}
+
+/* Local Spotlight Effect */
+button,
+.alert-card {
+  position: relative;
+  overflow: hidden;
+}
+
+button::before,
+.alert-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle 120px at var(--spotlight-x, -100px) var(--spotlight-y, -100px), rgba(255, 255, 255, 0.15), transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: overlay;
+}
+
+button:hover::before,
+.alert-card:hover::before {
+  opacity: 0.6;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.tracking-tighter {
+  letter-spacing: -0.05em;
+}
+
+.tracking-widest {
+  letter-spacing: 0.1em;
+}
+
+/* Global Animations */
+@keyframes fadeInSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+    filter: blur(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* === CINEMATIC TOAST NOTIFICATIONS === */
+.toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 20000;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  min-width: 320px;
+  max-width: 450px;
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateX(100%) scale(0.9);
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.toast.visible {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+}
+
+.toast.exit {
+  transform: translateX(120%) scale(0.9);
+  opacity: 0;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toast-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: bold;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.toast-message {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+/* Toast Variants */
+.toast-success { border-left: 3px solid var(--crisis-green); }
+.toast-success .toast-icon { color: var(--crisis-green); border-color: rgba(0, 255, 136, 0.2); }
+
+.toast-error { border-left: 3px solid var(--crisis-red); }
+.toast-error .toast-icon { color: var(--crisis-red); border-color: rgba(255, 30, 30, 0.2); }
+
+.toast-info { border-left: 3px solid var(--crisis-blue); }
+.toast-info .toast-icon { color: var(--crisis-blue); border-color: rgba(30, 108, 255, 0.2); }
+
+/* Progress bar animation */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  width: 100%;
+}
+
+.toast-success .toast-progress { background: var(--crisis-green); }
+.toast-error .toast-progress { background: var(--crisis-red); }
+.toast-info .toast-progress { background: var(--crisis-blue); }
+
+.toast.visible .toast-progress {
+  animation: toastProgress 4s linear forwards;
+}
+
+@keyframes toastProgress {
+  from { width: 100%; }
+  to { width: 0%; }
+}

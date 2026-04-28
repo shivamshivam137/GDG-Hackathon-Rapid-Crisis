@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>EMERGENCY SOS | Rapid Crisis Response</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/sos.css">
+  <link rel="stylesheet" href="css/ai-chat.css">
+</head>
+<body>
+  <!-- Ambient Animated Background -->
+  <div class="ambient-bg">
+    <div class="orb orb-red"></div>
+    <div class="orb orb-blue"></div>
+    <div class="orb orb-orange"></div>
+    <div class="noise-overlay"></div>
+  </div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <div id="app">
+    <main class="sos-container animate-fade-in">
+      <header class="sos-header">
+        <h1>Emergency</h1>
+        <p>Rapid Crisis Response System</p>
+      </header>
+
+      <div class="sos-button-wrapper">
+        <button id="sos-trigger" class="sos-button">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="2" fill="white" />
+            <path d="M8 8a6 6 0 0 0 0 8" />
+            <path d="M16 8a6 6 0 0 1 0 8" />
+            <path d="M5 5a10 10 0 0 0 0 14" />
+            <path d="M19 5a10 10 0 0 1 0 14" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="room-input-group">
+        <input 
+          type="number" 
+          id="room-number" 
+          placeholder="ROOM NUMBER" 
+          class="room-input"
+          inputmode="numeric"
+        >
+        
+        <div id="type-grid" class="type-grid">
+          <button class="type-button" data-type="FIRE">🔥 FIRE</button>
+          <button class="type-button" data-type="MEDICAL">🚨 MEDICAL</button>
+          <button class="type-button" data-type="SECURITY">🔒 SECURITY</button>
+          <button class="type-button" data-type="FLOOD">💧 FLOOD</button>
+          <button class="type-button" data-type="OTHER">⚠️ OTHER</button>
+        </div>
+
+        <!-- Optional description for "OTHER" type -->
+        <div id="other-description-wrap" style="display: none; margin-top: 0.75rem; animation: panelFadeIn 0.3s ease;">
+          <textarea 
+            id="other-description" 
+            placeholder="Briefly describe the issue (optional)..." 
+            rows="2" 
+            style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: white; font-family: var(--font-mono); font-size: 0.75rem; resize: none; outline: none; transition: border-color 0.3s;"
+            onfocus="this.style.borderColor='rgba(255,214,0,0.4)'"
+            onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Emergency Contacts Section -->
+      <section class="emergency-contacts" id="emergency-contacts">
+        <div class="contacts-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+          <span>EMERGENCY CONTACTS</span>
+        </div>
+        <div class="contacts-grid">
+          <a href="tel:0" class="contact-card">
+            <div class="contact-icon">🏨</div>
+            <div class="contact-info">
+              <span class="contact-name">Front Desk</span>
+              <span class="contact-number">Ext. 0</span>
+            </div>
+          </a>
+          <a href="tel:102" class="contact-card">
+            <div class="contact-icon">🚑</div>
+            <div class="contact-info">
+              <span class="contact-name">Ambulance</span>
+              <span class="contact-number">102</span>
+            </div>
+          </a>
+          <a href="tel:101" class="contact-card">
+            <div class="contact-icon">🚒</div>
+            <div class="contact-info">
+              <span class="contact-name">Fire Dept</span>
+              <span class="contact-number">101</span>
+            </div>
+          </a>
+          <a href="tel:100" class="contact-card">
+            <div class="contact-icon">🚔</div>
+            <div class="contact-info">
+              <span class="contact-name">Police</span>
+              <span class="contact-number">100</span>
+            </div>
+          </a>
+          <a href="tel:112" class="contact-card contact-card-highlight">
+            <div class="contact-icon">🆘</div>
+            <div class="contact-info">
+              <span class="contact-name">National Emergency</span>
+              <span class="contact-number">112</span>
+            </div>
+          </a>
+          <a href="tel:9999" class="contact-card">
+            <div class="contact-icon">🛡️</div>
+            <div class="contact-info">
+              <span class="contact-name">Hotel Security</span>
+              <span class="contact-number">Ext. 9999</span>
+            </div>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- Success View (Hidden by default) -->
+    <div id="success-screen" class="sos-container animate-fade-in" style="display: none; align-items: center; justify-content: center;">
+      <h2 style="font-size: 1.8rem; font-weight: 900; margin-bottom: 0.5rem; text-align: center; color: var(--crisis-red); text-shadow: 0 0 15px rgba(255, 60, 60, 0.4);">LIVE TRACKING</h2>
+      <div id="summary-badge" class="font-mono" style="margin-bottom: 2rem; color: var(--text-muted); font-size: 0.8rem; letter-spacing: 2px; text-align: center;">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-step active" id="step-sent">
+          <div class="step-indicator"><div class="step-dot"></div></div>
+          <div class="step-content">
+            <h3 class="step-title">SOS Transmitted</h3>
+            <p class="step-desc">Alert sent to command center.</p>
+          </div>
+        </div>
+        <div class="timeline-step" id="step-ai">
+          <div class="step-indicator"><div class="step-dot"></div></div>
+          <div class="step-content">
+            <h3 class="step-title">AI Assessment</h3>
+            <p class="step-desc">Generating emergency protocol.</p>
+          </div>
+        </div>
+        <div class="timeline-step" id="step-responding">
+          <div class="step-indicator"><div class="step-dot"></div></div>
+          <div class="step-content">
+            <h3 class="step-title">Staff Responding</h3>
+            <p class="step-desc">Help is en route to your location.</p>
+          </div>
+        </div>
+        <div class="timeline-step" id="step-admin" style="display:none;">
+          <div class="step-indicator" style="background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.3);"><div class="step-dot" style="background: #fbbf24; box-shadow: 0 0 15px #fbbf24;"></div></div>
+          <div class="step-content">
+            <h3 class="step-title" style="color: #fbbf24;">🛡️ Admin Intervention</h3>
+            <p class="step-desc">Command center has taken direct control.</p>
+          </div>
+        </div>
+        <div class="timeline-step" id="step-resolved">
+          <div class="step-indicator"><div class="step-dot"></div></div>
+          <div class="step-content">
+            <h3 class="step-title">Crisis Resolved</h3>
+            <p class="step-desc">The situation is under control.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="redirect-notice" style="display:none; margin-top: 2rem; font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); text-align: center; animation: fadeIn 0.5s ease;">
+        <span style="display: block; margin-bottom: 0.5rem; opacity: 0.6;">SESSION COMPLETING...</span>
+        <div style="color: var(--crisis-green); font-weight: bold; letter-spacing: 1px;">RETURNING TO HOME IN <span id="redirect-countdown">6</span>s</div>
+      </div>
+
+      <button onclick="location.reload()" style="margin-top: 2.5rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 0.75rem 1.5rem; border-radius: var(--radius-sm); font-family: var(--font-mono); cursor: pointer; backdrop-filter: blur(5px); transition: all 0.3s ease;">
+        CANCEL / RESTART
+    </div>
+  </div>
+
+  <!-- Staff/Admin Navigation Dropdown -->
+  <div id="nav-dropdown" style="position: fixed; top: 0.75rem; right: 0.75rem; z-index: 1000;">
+    <button id="nav-trigger" onclick="document.getElementById('nav-menu').classList.toggle('open')" style="
+      width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.25); font-size: 1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s; backdrop-filter: blur(4px); padding: 0; line-height: 1;
+    " onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'"
+       onmouseout="this.style.background='rgba(255,255,255,0.03)';this.style.color='rgba(255,255,255,0.25)'">⋮</button>
+
+    <div id="nav-menu" style="
+      position: absolute; top: 36px; right: 0; min-width: 160px;
+      background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5); padding: 0.4rem;
+      opacity: 0; visibility: hidden; transform: translateY(-8px) scale(0.95);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    ">
+      <a href="staff.html" target="_blank" style="
+        display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.75rem;
+        color: rgba(255,255,255,0.7); text-decoration: none; font-family: var(--font-mono);
+        font-size: 0.6rem; letter-spacing: 1px; border-radius: 5px; transition: all 0.2s;
+      " onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='#fff'"
+         onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.7)'">👤 STAFF PORTAL</a>
+      <a href="admin.html" target="_blank" style="
+        display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.75rem;
+        color: rgba(255,255,255,0.7); text-decoration: none; font-family: var(--font-mono);
+        font-size: 0.6rem; letter-spacing: 1px; border-radius: 5px; transition: all 0.2s;
+      " onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='#fff'"
+         onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.7)'">🛡️ ADMIN COMMAND</a>
+    </div>
+  </div>
+
+  <style>
+    #nav-menu.open {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: translateY(0) scale(1) !important;
+    }
+  </style>
+  <script>
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('nav-dropdown').contains(e.target)) {
+        document.getElementById('nav-menu').classList.remove('open');
+      }
+    });
+  </script>
+
+  <!-- AI Emergency Assistant Chat -->
+  <button id="ai-chat-fab" class="ai-chat-fab" aria-label="Chat with AI Assistant">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      <path d="M8 10h.01M12 10h.01M16 10h.01" stroke-width="3"></path>
+    </svg>
+  </button>
+  <div id="ai-chat-fab-label" class="ai-chat-fab-label">AI EMERGENCY ASSISTANT</div>
+
+  <div id="ai-chat-panel" class="ai-chat-panel">
+    <div class="ai-chat-header">
+      <div class="ai-chat-avatar">🤖</div>
+      <div class="ai-chat-header-info">
+        <div class="ai-chat-header-title">AI Assistant</div>
+        <div class="ai-chat-header-status">Online — Emergency Mode</div>
+      </div>
+    </div>
+
+    <div id="ai-chat-messages" class="ai-chat-messages">
+      <div class="ai-chat-welcome">
+        <span class="ai-chat-welcome-icon">🛡️</span>
+        <h3>Emergency AI</h3>
+        <p>I can help you with immediate safety guidance, first aid instructions, and emergency procedures. Ask me anything.</p>
+      </div>
+    </div>
+
+    <div id="ai-chat-quick-actions" class="ai-chat-quick-actions">
+      <button class="ai-quick-btn" data-msg="There's an emergency, I need help!">🚨 Report Emergency</button>
+      <button class="ai-quick-btn" data-msg="What should I do right now?">💡 What to do?</button>
+      <button class="ai-quick-btn" data-msg="How do I evacuate safely?">🚪 Evacuate</button>
+      <button class="ai-quick-btn" data-msg="I need first aid help">🩹 First aid</button>
+    </div>
+
+    <div class="ai-chat-input-area">
+      <textarea id="ai-chat-input" class="ai-chat-input" placeholder="Describe your situation..." rows="1"></textarea>
+      <button id="ai-chat-send" class="ai-chat-send" aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Firebase & App Logic -->
+  <script type="module" src="js/sos.js"></script>
+</body>
+</html>
