@@ -3,7 +3,7 @@
  * Acts as the Chief of Operations for KASS City Hospital
  */
 
-const GEMINI_API_KEY = "Your_API_KEY";
+const GEMINI_API_KEY = "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";
 const MODEL = "gemini-2.0-flash"; 
 const API_URL = atob("aHR0cHM6Ly9hcGkuZ3JvcS5jb20vb3BlbmFpL3YxL2NoYXQvY29tcGxldGlvbnM=");
 const _m = atob("bGxhbWEtMy4zLTcwYi12ZXJzYXRpbGU=");
